@@ -1,31 +1,52 @@
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Button, Platform, RefreshControl } from 'react-native';
+import * as React from "react";
+import Lottie from 'lottie-react-native';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { createRandomUser } from '@/utils/generate-dummy-data';
+import { ThreadsContext } from '@/context/thread-context';
+import ThreadsItem from '@/components/ThreadsItem';
 
 export default function TabOneScreen() {
+
+  const animationRef = React.useRef<Lottie>(null);
+  const threads = React.useContext(ThreadsContext)
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+    <SafeAreaView>
+      <ScrollView 
+        contentContainerStyle={{
+          // backgroundColor: 'gray',
+          paddingHorizontal: 10,
+          paddingTop: Platform.select({android: 10})
+        }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={false}
+            onRefresh={()=>{animationRef.current?.play()}}
+            tintColor={"transparent"}
+          />
+        }
+      >
+      <Lottie 
+        ref = {animationRef}
+         autoPlay
+         source={require('../../lottie-animations/threads.json')}
+         loop={false}
+         style={{
+          width: 90,
+          height: 90,
+          alignSelf: 'center',
+         }}
+        //  onAnimationFinish={()=>{alert("Finished")}}
+      />
+ 
+      {threads.map((thread)=>
+        <ThreadsItem key={thread.id} {...thread} />
+      )}
+  
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
